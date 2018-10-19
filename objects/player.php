@@ -25,7 +25,7 @@ class Player{
      
         // select all query
         $query = "SELECT
-                    p.ID, p.firstname, p.lastname, p.knownas, p.positionID, p.teamID, p.jersey,
+                    p.ID, p.firstname, p.lastname, p.knownas, p.positionID, p.teamID, p.jersey, p.status, p.news,
                     IFNULL(s.mins, 0) AS mins,
                     IFNULL(s.tackles, 0) AS tackles,
                     IFNULL(s.passes, 0) AS passes,
@@ -50,15 +50,37 @@ class Player{
         return $stmt;
     }
     
-    function read_player_stats() {
+    function read_stats() {
         $query = "SELECT
                     *
                 FROM
                     player_stats_detailed
                 WHERE
-                    player_ID = ?
+                    player_ID = ? AND season_ID = '2018'
                 ORDER BY
                     date DESC";
+        
+        // prepare query statement
+        $stmt = $this->conn->prepare( $query );
+     
+        // bind id of player to be selected
+        $stmt->bindParam(1, $this->id);
+     
+        // execute query
+        $stmt->execute();
+        
+        return $stmt;
+    }
+    
+    function read_history() {
+        $query = "SELECT 
+                    *
+                FROM 
+                    `player_history` 
+                WHERE 
+                    player_ID = ?
+                ORDER BY
+                    season_ID DESC";
         
         // prepare query statement
         $stmt = $this->conn->prepare( $query );

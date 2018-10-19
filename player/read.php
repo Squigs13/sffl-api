@@ -31,7 +31,7 @@ if($num>0){
         
         $player->id = $ID;
         
-        $stat_stmt = $player->read_player_stats();
+        $stat_stmt = $player->read_stats();
         $stat_num = $stat_stmt->rowCount();
         $stats_arr=array();
         
@@ -58,6 +58,30 @@ if($num>0){
                 
             }
         }
+        
+        $hist_stmt = $player->read_history();
+        $hist_num = $hist_stmt->rowCount();
+        $hist_arr = array();
+        
+        if ($hist_num > 0) {
+            
+            while ($hist_row = $hist_stmt->fetch(PDO::FETCH_ASSOC)) {
+                
+                $hist_item = array(
+                    "club_id" => $hist_row['club_ID'],
+                    "season_id" => $hist_row['season_ID'],
+                    "mins" => (int)$hist_row['mins'],
+                    "passes" => (int)$hist_row['passes'],
+                    "tackles" => (int)$hist_row['tackles'],
+                    "goals" => (int)$hist_row['goals'],
+                    "assists" => (int)$hist_row['assists'],
+                    "cleansheets" => (int)$hist_row['cleansheets'],
+                    "pts" => (int)$hist_row['pts']  
+                );
+                
+                array_push($hist_arr, $hist_item);
+            }
+        }
  
         $player_item=array(
             "id" => $ID,
@@ -67,6 +91,8 @@ if($num>0){
             "team_id" => $teamID,
             "position" => $positionID,
             "shirt_no" => $jersey,
+            "status" => $status,
+            "news" => $news,
             "mins" => $mins,
             "passes" => $passes,
             "tackles" => $tackles,
@@ -74,7 +100,8 @@ if($num>0){
             "assists" => $assists,
             "cleansheets" => $cleansheets,
             "pts" => $pts,
-            "stats" => $stats_arr
+            "stats" => $stats_arr,
+            "history" => $hist_arr
         );
  
         array_push($players_arr["players"], $player_item);
