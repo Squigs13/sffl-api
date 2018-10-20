@@ -9,7 +9,7 @@ class Team{
     public $id;
     public $name;
     public $points;
-    public $squad;
+    public $priority;
  
     // constructor with $db as database connection
     public function __construct($db){
@@ -21,23 +21,10 @@ class Team{
      
         // select all query
         $query = "SELECT
-                    t.ID, t.team_name, t.total_points,
-                    GROUP_CONCAT(s.players_ID SEPARATOR ':') AS player_ID,
-                    GROUP_CONCAT(p.firstname SEPARATOR ':') AS player_first,
-                    GROUP_CONCAT(p.lastname SEPARATOR ':') AS player_last,
-                    GROUP_CONCAT(p.knownas SEPARATOR ':') AS player_known,
-                    GROUP_CONCAT(p.teamID SEPARATOR ':') AS player_club,
-                    GROUP_CONCAT(p.positionID SEPARATOR ':') AS player_pos
+                    t.ID, t.team_name, t.total_points, t.priority
                 FROM
                     " . $this->table_name . " t
-                    INNER JOIN
-                        rosters s
-                            ON s.current_teams_ID = t.ID
-                    INNER JOIN
-                        players p
-                            ON s.players_ID = p.ID
-                GROUP BY
-                    ID";
+                    ";
      
         // prepare query statement
         $stmt = $this->conn->prepare($query);
@@ -48,28 +35,14 @@ class Team{
         return $stmt;
     }
     
-    function readOne(){
+    function read_one(){
         
          $query = "SELECT
-                    t.ID, t.team_name, t.total_points,
-                    GROUP_CONCAT(s.players_ID SEPARATOR ':') AS player_ID,
-                    GROUP_CONCAT(p.firstname SEPARATOR ':') AS player_first,
-                    GROUP_CONCAT(p.lastname SEPARATOR ':') AS player_last,
-                    GROUP_CONCAT(p.knownas SEPARATOR ':') AS player_known,
-                    GROUP_CONCAT(p.teamID SEPARATOR ':') AS player_club,
-                    GROUP_CONCAT(p.positionID SEPARATOR ':') AS player_pos
+                    t.ID, t.team_name, t.total_points, t.priority
                 FROM
                     " . $this->table_name . " t
-                    INNER JOIN
-                        rosters s
-                            ON s.current_teams_ID = t.ID
-                    INNER JOIN
-                        players p
-                            ON s.players_ID = p.ID
                 WHERE
-                    t.ID = ?
-                LIMIT
-                    0,1";
+                    t.ID = ?";
         
         // prepare query statement
         $stmt = $this->conn->prepare( $query );
@@ -80,33 +53,32 @@ class Team{
         // execute query
         $stmt->execute();
         
-        // get retrieved row
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        extract($row);
-        
-        $temp_squad = explode(":",$player_ID);
-        $temp_first = explode(":",$player_first);
-        $temp_last = explode(":",$player_last);
-        $temp_known = explode(":",$player_known);
-        $temp_club = explode(":",$player_club);
-        $temp_pos = explode(":",$player_pos);
-        $temp_arr = array();
-        foreach($temp_squad as $key => $val) {
-            $temp_item = array(
-                "id" => (int)$val,
-                "first" => html_entity_decode($temp_first[$key]),
-                "last" => html_entity_decode($temp_last[$key]),
-                "known" => html_entity_decode($temp_known[$key]),
-                "club" => $temp_club[$key],
-                "position" => $temp_pos[$key]
-            );
-            array_push($temp_arr, $temp_item);
-        }
-        
-        $this->name = $team_name;
-        $this->points = $total_points;
-        $this->squad = $temp_arr;
+        return $stmt;
                     
+    }
+    
+    function read_lineup() {
+        $query = "SELECT
+                    players_ID, positions_ID
+                FROM
+                    starting_lineup_actuals
+                WHERE
+                    teams_ID = ? AND weeks_ID = ?
+                ORDER BY
+                    positions_ID ASC";
+                    
+        // prepare query statement
+        $stmt = $this->conn->prepare( $query );
+        
+        $week = 9;
+     
+        // bind id of team to be selected
+        $stmt->bindParam(1, $this->id);
+        $stmt->bindParam(2, $week);
+     
+        // execute query
+        $stmt->execute();
+        
+        return $stmt;
     }
 }

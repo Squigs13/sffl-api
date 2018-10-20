@@ -20,14 +20,36 @@ $team = new Team($db);
 $team->id = isset($_GET['id']) ? $_GET['id'] : die();
  
 // read the details of team to be selected
-$team->readOne();
+$stmt = $team->read_one();
+
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+extract($row);
+
+$lineup_stmt = $team->read_lineup();
+$lineup_num = $lineup_stmt->rowCount();
+$lineup_arr=array();
+
+if($lineup_num>0){
+    
+    while ($lineup_row = $lineup_stmt->fetch(PDO::FETCH_ASSOC)){
+ 
+        $lineup_item=array(
+            "player_id" => (int)$lineup_row['players_ID'],
+            "position" => $lineup_row['positions_ID']
+        );
+ 
+        array_push($lineup_arr, $lineup_item);
+    }
+}
  
 // create array
 $team_arr = array(
-    "id" =>  $team->id,
-    "name" => $team->name,
-    "points" => $team->points,
-    "squad" => $team->squad
+    "id" =>  (int)$ID,
+    "name" => html_entity_decode($team_name),
+    "pts" => $total_points,
+    "priority" => (int)$priority,
+    "lineup" => $lineup_arr
 );
  
 // make it json format

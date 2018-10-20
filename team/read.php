@@ -29,30 +29,13 @@ if($num>0){
 
         extract($row);
         
-        $temp_squad = explode(":",$player_ID);
-        $temp_first = explode(":",$player_first);
-        $temp_last = explode(":",$player_last);
-        $temp_known = explode(":",$player_known);
-        $temp_club = explode(":",$player_club);
-        $temp_pos = explode(":",$player_pos);
-        $temp_arr = array();
-        foreach($temp_squad as $key => $val) {
-            $temp_item = array(
-                "id" => (int)$val,
-                "first" => html_entity_decode($temp_first[$key]),
-                "last" => html_entity_decode($temp_last[$key]),
-                "known" => html_entity_decode($temp_known[$key]),
-                "club" => $temp_club[$key],
-                "position" => $temp_pos[$key]
-            );
-            array_push($temp_arr, $temp_item);
-        }
+        
  
         $team_item=array(
             "id" => (int)$ID,
-            "teamname" => html_entity_decode($team_name),
+            "name" => html_entity_decode($team_name),
             "pts" => $total_points,
-            "squad" => $temp_arr
+            "priority" => (int)$priority
         );
  
         array_push($team_arr["teams"], $team_item);
