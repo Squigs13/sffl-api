@@ -10,6 +10,7 @@ class Team{
     public $name;
     public $points;
     public $priority;
+    public $lineup_week;
  
     // constructor with $db as database connection
     public function __construct($db){
@@ -69,12 +70,10 @@ class Team{
                     
         // prepare query statement
         $stmt = $this->conn->prepare( $query );
-        
-        $week = 9;
      
         // bind id of team to be selected
         $stmt->bindParam(1, $this->id);
-        $stmt->bindParam(2, $week);
+        $stmt->bindParam(2, $this->lineup_week);
      
         // execute query
         $stmt->execute();

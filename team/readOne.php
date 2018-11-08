@@ -18,6 +18,7 @@ $team = new Team($db);
  
 // set ID property of team to be selected
 $team->id = isset($_GET['id']) ? $_GET['id'] : die();
+$team->lineup_week = isset($_GET['week']) ? $_GET['week'] : 9;
  
 // read the details of team to be selected
 $stmt = $team->read_one();
@@ -49,7 +50,10 @@ $team_arr = array(
     "name" => html_entity_decode($team_name),
     "pts" => $total_points,
     "priority" => (int)$priority,
-    "lineup" => $lineup_arr
+    "lineup" => array(
+        "week" => $team->lineup_week,
+        "players" => $lineup_arr
+    )
 );
  
 // make it json format
