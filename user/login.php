@@ -31,6 +31,11 @@ include_once '../libs/php-jwt-5.0.0/src/ExpiredException.php';
 include_once '../libs/php-jwt-5.0.0/src/SignatureInvalidException.php';
 include_once '../libs/php-jwt-5.0.0/src/JWT.php';
 use \Firebase\JWT\JWT;
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    break;
+}
  
 // check if email exists and if password is correct
 if($email_exists && password_verify($data->password, $user->password)){
